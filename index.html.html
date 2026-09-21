@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anamnese Alimentar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:#38BFA6; --primary-dark:#2A9B87; --primary-light:#E6F7F4;
+      --bg:#EDF1F8; --card:#FFFFFF; --border:#E4EAF2;
+      --text:#1B2D42; --text-2:#6B7E96; --text-3:#9BAABB;
+      --danger:#DC2626; --success:#059669; --success-bg:#E6FAF4;
+      --shadow-sm:0 1px 4px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+      --shadow:0 4px 20px rgba(0,0,0,.08);
+      --r:14px; --r2:9px;
+    }
+    @media(prefers-color-scheme:dark){
+      :root{--bg:#0E1922;--card:#162030;--border:#1F3048;--text:#E6EEF8;--text-2:#8FAABB;--text-3:#4E6A80;--primary-light:#0F2E2A;--success-bg:#0C1E1A;}
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    button,input,select,textarea{font:inherit;}
+    button{cursor:pointer;}
+
+    /* ── HEADER ── */
+    .header{background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);}
+    .header-inner{max-width:900px;margin:0 auto;padding:0 20px;height:64px;display:flex;align-items:center;gap:16px;}
+    .logo-img{height:36px;width:auto;flex-shrink:0;}
+    .header-divider{width:1px;height:24px;background:var(--border);margin:0 4px;}
+    .header-title{font-size:.85rem;font-weight:600;color:var(--text-2);}
+    .progress-wrap{margin-left:auto;display:flex;align-items:center;gap:10px;}
+    .progress-bar-outer{width:120px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+    .progress-bar-inner{height:6px;background:var(--primary);border-radius:3px;transition:width .3s ease;width:0%;}
+    .progress-label{font-size:.75rem;font-weight:600;color:var(--text-3);white-space:nowrap;}
+
+    /* ── HERO ── */
+    .hero{background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff;padding:36px 20px;}
+    .hero-inner{max-width:900px;margin:0 auto;}
+    .hero-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(255,255,255,.18);border-radius:20px;font-size:.73rem;font-weight:700;letter-spacing:.04em;margin-bottom:12px;}
+    .hero h1{font-family:'Nunito',sans-serif;font-size:1.7rem;font-weight:900;line-height:1.2;margin-bottom:8px;}
+    .hero p{font-size:.9rem;opacity:.88;max-width:560px;line-height:1.6;}
+
+    /* ── LAYOUT ── */
+    .page{max-width:900px;margin:0 auto;padding:28px 20px 80px;display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start;}
+    @media(max-width:760px){.page{grid-template-columns:1fr;}.sticky-side{display:none;}}
+
+    /* ── CARDS ── */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-sm);margin-bottom:16px;overflow:hidden;}
+    .card-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
+    .card-head-left{display:flex;align-items:center;gap:12px;}
+    .card-num{width:28px;height:28px;border-radius:8px;background:var(--primary-light);color:var(--primary-dark);font-family:'Nunito',sans-serif;font-weight:900;font-size:.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .card-num.done{background:var(--success-bg);color:var(--success);}
+    .card-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:.93rem;color:var(--text);}
+    .card-chevron{color:var(--text-3);transition:transform .2s;}
+    .card-chevron.open{transform:rotate(180deg);}
+    .card-body{padding:20px;}
+    .card-body.collapsed{display:none;}
+
+    /* ── FORM ── */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .form-grid.three{grid-template-columns:1fr 1fr 1fr;}
+    .full{grid-column:1/-1;}
+    .field{display:flex;flex-direction:column;gap:5px;}
+    .field label{font-size:.77rem;font-weight:600;color:var(--text-2);}
+    .field label .req{color:var(--danger);}
+    input,select,textarea{padding:10px 12px;border:1px solid var(--border);border-radius:var(--r2);background:var(--bg);color:var(--text);font-size:.85rem;transition:border-color .13s,background .13s;width:100%;}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);background:var(--card);box-shadow:0 0 0 3px rgba(56,191,166,.1);}
+    textarea{min-height:88px;resize:vertical;}
+    select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7E96' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-color:var(--bg);padding-right:30px;}
+    .hint{font-size:.72rem;color:var(--text-3);margin-top:3px;}
+
+    /* choice chips */
+    .choices{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px;}
+    .choice-chip{position:relative;}
+    .choice-chip input{position:absolute;opacity:0;width:0;height:0;}
+    .choice-chip label{display:flex;align-items:center;gap:6px;padding:8px 13px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text-2);font-size:.8rem;font-weight:500;cursor:pointer;transition:all .13s;}
+    .choice-chip input:checked + label{background:var(--primary-light);border-color:var(--primary);color:var(--primary-dark);font-weight:700;}
+    .choice-chip label:hover{border-color:var(--primary);background:var(--primary-light);}
+    .dot{width:7px;height:7px;border-radius:50%;border:1.5px solid currentColor;flex-shrink:0;}
+    .choice-chip input:checked + label .dot{background:currentColor;}
+
+    /* conditional */
+    .cond{display:none;margin-top:10px;padding:14px;background:var(--bg);border:1px dashed var(--border);border-radius:var(--r2);grid-column:1/-1;}
+    .cond.show{display:block;}
+    .cond .form-grid{gap:10px;}
+
+    /* range */
+    input[type=range]{padding:0;border:none;background:transparent;height:4px;accent-color:var(--primary);cursor:pointer;}
+    input[type=range]:focus{box-shadow:none;}
+
+    /* ── STICKY SIDE ── */
+    .sticky-side{position:sticky;top:80px;}
+    .side-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:16px;margin-bottom:14px;}
+    .side-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:.88rem;color:var(--text);margin-bottom:12px;}
+    .sum-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:.78rem;}
+    .sum-row:last-child{border-bottom:none;}
+    .sum-row span{color:var(--text-3);}
+    .sum-row strong{color:var(--text-2);}
+    .sum-row strong.done{color:var(--success);}
+    .info-box{padding:12px;background:var(--primary-light);border-radius:var(--r2);font-size:.77rem;color:var(--primary-dark);line-height:1.5;}
+
+    /* ── CONSENT ── */
+    .consent-wrap{display:flex;align-items:flex-start;gap:10px;padding:14px;background:var(--bg);border-radius:var(--r2);border:1.5px solid var(--border);}
+    .consent-wrap input[type=checkbox]{width:16px;height:16px;margin-top:2px;flex-shrink:0;accent-color:var(--primary);}
+    .consent-wrap p{font-size:.8rem;color:var(--text-2);line-height:1.5;}
+
+    /* ── FOOTER ACTIONS ── */
+    .footer{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:10px;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,.06);}
+    .save-status{margin-right:auto;font-size:.76rem;color:var(--text-3);}
+    .btn{padding:10px 20px;border-radius:var(--r2);border:1.5px solid var(--border);background:var(--card);color:var(--text-2);font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;transition:background .13s;}
+    .btn:hover{background:var(--bg);}
+    .btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;}
+    .btn-primary:hover{background:var(--primary-dark);}
+
+    /* ── SUCCESS SCREEN ── */
+    .success-screen{display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;}
+    .success-screen.show{display:flex;}
+    .success-icon{width:72px;height:72px;background:var(--success-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:20px;}
+    .success-icon svg{width:36px;height:36px;color:var(--success);}
+    .success-screen h2{font-family:'Nunito',sans-serif;font-size:1.5rem;font-weight:900;color:var(--text);margin-bottom:8px;}
+    .success-screen p{font-size:.9rem;color:var(--text-2);max-width:440px;line-height:1.6;}
+
+    @media(max-width:640px){
+      .form-grid,.form-grid.three{grid-template-columns:1fr;}
+      .hero h1{font-size:1.35rem;}
+      .progress-bar-outer{display:none;}
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <img src="logo.png" alt="NutriClinic" class="logo-img">
+    <div class="header-divider"></div>
+    <div class="header-title">Anamnese alimentar</div>
+    <div class="progress-wrap">
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar"></div></div>
+      <div class="progress-label" id="progressLabel">0% preenchido</div>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      PRÉ-CONSULTA
+    </div>
+    <h1>Anamnese alimentar pré-consulta</h1>
+    <p>Preencha este formulário com atenção antes da sua consulta. As suas respostas ajudam a nutricionista a preparar um plano personalizado. Pode guardar um rascunho e retomar mais tarde.</p>
+  </div>
+</div>
+
+<!-- MAIN FORM -->
+<div id="mainForm">
+<div class="page">
+  <div class="form-col">
+
+    <!-- 1. Dados pessoais -->
+    <div class="card" id="card-1">
+      <div class="card-head" onclick="toggleCard(1)">
+        <div class="card-head-left">
+          <div class="card-num" id="num-1">1</div>
+          <div class="card-title">Dados pessoais</div>
+        </div>
+        <svg class="card-chevron open" id="chev-1" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="card-body" id="body-1">
+        <div class="form-grid">
+          <div class="field full"><label>Nome completo <span class="req">*</span></label><input name="nome" placeholder="O seu nome completo"></div>
+          <div class="field"><label>Data de nascimento <span class="req">*</span></label><input name="nascimento" type="date"></div>
+          <div class="field"><label>Sexo</label>
+            <select name="sexo"><option value="">Selecione</option><option>Feminino</option><option>Masculino</option><option>Outro</option><option>Prefiro não informar</option></select>
+          </div>
+          <div class="field"><label>Profissão</label><input name="profissao" placeholder="Ex.: Professora"></div>
+          <div class="field"><label>Cidade / País</label><input name="local" placeholder="Ex.: Lisboa, Portugal"></div>
+          <div class="field"><label>Telefone / WhatsApp</label><input name="telefone" placeholder="+351 9XX XXX XXX"></div>
+          <div class="field"><label>E-mail</label><input name="email" type="email" placeholder="email@exemplo.com"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Motivo e objetivos -->
+    <div class="card" id="card-2">
+      <div class="card-head" onclick="toggleCard(2)">
+        <div class="card-head-left"><div class="card-num" id="num-2">2</div><div class="card-title">Motivo e objetivos</div></div>
+        <svg class="card-chevron open" id="chev-2" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="card-body" id="body-2">
+        <div class="form-grid">
+          <div class="field full"><label>Principal motivo da consulta <span class="req">*</span></label>
+            <select name="motivo"><option value="">Selecione</option><option>Perda de peso</option><option>Ganho de massa muscular</option><option>Manutenção do peso</option><option>Melhora da alimentação</option><option>Reeducação alimentar</option><option>Performance desportiva</option><option>Controlo de condição de saúde</option><option>Ganho de peso</option><option>Saúde digestiva</option><option>Outro</option></select>
+          </div>
+          <div class="field full"><label>O que motivou a procurar acompanhamento agora?</label><textarea name="motivacao_texto" placeholder="Conte brevemente..."></textarea></div>
+          <div class="field full"><label>Objetivos concretos</label><input name="objetivos" placeholder="Ex.: Perder 8 kg, melhorar colesterol, organizar refeições..."></div>
+          <div class="field full">
+            <label>Motivação para mudar hábitos: <strong id="mot-val">5/10</strong></label>
+            <input type="range" name="motivacao_nota" id="mot-range" min="0" max="10" value="5">
+            <div class="hint">0 = nenhuma motivação &nbsp;·&nbsp; 10 = muito motivado/a</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Antropometria -->
+    <div class="card" id="card-3">
+      <div class="card-head" onclick="toggleCard(3)">
+        <div class="card-head-left"><div class="card-num" id="num-3">3</div><div class="card-title">Medidas e composição corporal</div></div>
+        <svg class="card-chevron open" id="chev-3" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="card-body" id="body-3">
+        <div class="form-grid three">
+          <div class="field"><label>Peso atual (kg)</label><input name="peso" type="number" step=".1" placeholder="Ex.: 72.5"></div>
+          <div class="field"><label>Altura (cm)</label><input name="altura" type="number" placeholder="Ex.: 165"></div>
+          <div class="field"><label>Peso desejado (kg)</label><input name="peso_desejado" type="number" step=".1" placeholder="Opcional"></div>
+        </div>
+        <div class="form-grid" style="margin-top:12px">
+          <div class="field"><label>Peso máximo que já teve (kg)</label><input name="peso_max" type="number" step=".1"></div>
+          <div class="field"><label>Peso mínimo (adulto) (kg)</label><input name="peso_min" type="number" step=".1"></div>
+          <div class="field full"><label>Variação de peso recente</label>
+            <select name="variacao_peso"><option value="">Selecione</option><option>Estável</option><option>A aumentar</option><option>A diminuir</option><option>Muita variação</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Rotina e atividade física -->
+    <div class="card" id="card-4">
+      <div class="card-head" onclick="toggleCard(4)">
+        <div class="card-head-left"><div class="card-num" id="num-4">4</div><div class="card-title">Rotina e atividade física</div></div>
+        <svg class="card-chevron open" id="chev-4" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="card-body" id="body-4">
+        <div class="form-grid three">
+          <div class="field"><label>Hora habitual de acordar</label><input name="acorda" type="time"></div>
+          <div class="field"><label>Hora habitual de dormir</label><input name="dorme" type="time"></div>
+          <div class="field"><label>Horas de sono por noite</label><input name="horas_sono" type="number" min="0" max="24" step=".5" placeholder="Ex.: 7"></div>
+        </div>
+        <div class="form-grid" style="margin-top:14px">
+          <div class="field"><label>Tipo de trabalho/estudo</label>
+            <select name="trabalho"><option value="">Selecione</option><option>Maioritariamente sentado</option><option>Em pé</option><option>Trabalho físico</option><option>Alternado</option><option>Turnos</option></select>
+          </div>
+          <div class="field"><label>Tempo sentado por dia</label>
+            <select name="sedentarismo"><option value="">Selecione</option><option>Menos de 2h</option><option>2–4h</option><option>4–6h</option><option>6–8h</option><option>Mais de 8h</option></select>
+          </div>
+          <div class="field full"><label>Nível de atividade física</label>
+            <div class="choices">
+              <div class="choice-chip"><input type="radio" name="atividade_nivel" id="an1" value="sedentario"><label for="an1"><div class="dot"></div>Sedentário</label></div>
+              <div class="choice-chip"><input type="radio" name="atividade_nivel" id="an2" value="pouco"><label for="an2"><div class="dot"></div>Pouco ativo</label></div>
+              <div class="choice-chip"><input type="radio" name="atividade_nivel" id="an3" value="moderado"><label for="an3"><div class="dot"></div>Moderadamente ativo</label></div>
+              <div class="choice-chip"><input type="radio" name="atividade_nivel" id="an4" value="muito"><label for="an4"><div class="dot"></div>Muito ativo</label></div>
+            </div>
+          </div>
+          <div class="field full"><label>Pratica atividade física? <span class="req">*</span></label>
+            <div class="choices">
+              <div class="choice-chip"><input type="radio" name="pratica" id="pn" value="nao" onchange="toggleCond('ativ-det',false)"><label for="pn"><div class="dot"></div>Não</label></div>
+              <div class="choice-chip"><input type="radio" name="pratica" id="ps" value="sim" onchange="toggleCond('ativ-det',true)"><label for="ps"><div class="dot"></div>Sim</label></div>
+            </div>
+          </div>
+          <div class="cond" id="ativ-det">
+            <div class="form-grid">
+              <div class="field"><label>Qual atividade?</label><input name="ativ_qual" placeholder="Ex.: musculação, corrida"></div>
+              <div class="field"><label>Frequência semanal</label><input name="ativ_freq" type="number" min="0" max="14" placeholder="Ex.: 3"></div>
+              <div class="field"><label>Duração média por sessão</label><input name="ativ_duracao" placeholder="Ex.: 45 min"></div>
+              <div class="field"><label>Horário habitual</label><input name="ativ_horario" type="time"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Hábitos alimentares -->
+    <div class="card" id="card-5">
+      <div class="card-head" onclick="toggleCard(5)">
+        <div class="card-head-left"><div class="card-num" id="num-5">5</div><div class="card-title">Hábitos e rotina alimentar</div></div>
+        <svg class="card-chevron open" id="chev-5" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="card-body" id="body-5">
+        <div class="form-grid">
+          <div class="field"><label>Número de refeições por dia</label><input name="refeicoes_dia" type="number" min="0" max="15" placeholder="Ex.: 4"></div>
+          <div class="field"><label>Come fora de casa</label>
+            <select name="fora"><option value="">Selecione</option><option>Nunca</option><option>Raramente</option><option>Algumas vezes por semana</option><option>Todos os dias</option></select>
+          </div>
+          <div class="field full"><label>Costuma saltar refeições?</label>
+            <div class="choices">
+              <div class="choice-chip"><input type="radio" name="pula" id="pn2" value="nao" onchange="toggleCond('pula-det',false)"><label for="pn2"><div class="dot"></div>Não</label></div>
+              <div class="choice-chip"><input type="radio" name="pula" id="ps2" value="sim" onchange="toggleCond('pula-det',true)"><label for="ps2"><div class="dot"></div>Sim</label></div>
+            </div>
+          </div>
+          <div class="cond" id="pula-det">
+            <div class="field"><label>Qual refeição costuma saltar?</label><input name="refeicao_pulada" placeholder="Ex.: pequeno-almoço"></div>
+          </div>
+          <div class="field full"><label>Quem prepara habitualmente as refeições?</label><input name="quem_cozinha" placeholder="Eu próprio/a, família, restaurante..."></div>
+          <div class="field full"><label>Quanto tempo tem disponível para cozinhar</label>
+            <select name="tempo_cozinha"><option value="">Selecione</option><option>Até 15 min</option><option>15–30 min</option><option>30–60 min</option><option>Mais de 1h</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Preferências e restrições -->
+    <div class="card" id="card-6">
+      <div class="card-head" onclick="toggleCard(6)">
+        <div class="card-head-left"><div class="card-num" id="num-6">6</div><div class="card-title">Preferências e restrições alimentares</div></div>
+        <svg class="card-chevron open" id="chev-6" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="card-body" id="body-6">
+        <div class="form-grid">
+          <div class="field full"><label>Alimentos favoritos</label><textarea name="favoritos" placeholder="Quais alimentos gostaria de manter na alimentação?"></textarea></div>
+          <div class="field full"><label>Alimentos que não gosta</label><textarea name="nao_gosta" placeholder="Quais alimentos não consome por preferência?"></textarea></div>
+          <div class="field full"><label>Segue algum padrão alimentar?</label>
+            <select name="padrao"><option value="">Nenhum</option><option>Vegetariano</option><option>Vegano</option><option>Flexitariano</option><option>Low carb</option><option>Sem glúten</option><option>Sem lactose</option><option>Outro</option></select>
+          </div>
+          <div class="field full"><label>Possui alergia ou intolerância alimentar?</label>
+            <div class="choices">
+              <div class="choice-chip"><input type="radio" name="alergia" id="aln" value="nao" onchange="toggleCond('aler-det',false)"><label for="aln"><div class="dot"></div>Não</label></div>
+              <div class="choice-chip"><input type="radio" name="alergia" id="als" value="sim" onchange="toggleCond('aler-det',true)"><label for="als"><div class="dot"></div>Sim</label></div>
+            </div>
+          </div>
+          <div class="cond" id="aler-det">
+            <div class="field"><label>Quais alergias / intolerâncias?</label><input name="alergias" placeholder="Ex.: lactose, glúten, amendoim..."></div>
+          </div>
+          <div class="field full"><label>Alimentos que gostaria de incluir no plano</label><textarea name="incluir" placeholder="Opcional"></textarea></div>
+          <div class="field full"><label>Alimentos que gostaria de evitar</label><textarea name="evitar" placeholder="Opcional"></textarea></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Bebidas -->
+    <div class="card" id="card-7">
+      <div class="card-head" onclick="toggleCard(7)">
+        <div class="card-head-left"><div class="card-num" id="num-7">7</div><div class="card-title">Consumo de bebidas</div></div>
+        <svg class="card-chevron open" id="chev-7" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="card-body" id="body-7">
+        <div class="form-grid">
+          <div class="field full"><label>Quantidade de água por dia</label>
+            <select name="agua"><option value="">Selecione</option><option>Menos de 500 ml</option><option>500 ml – 1 L</option><option>1 – 1,5 L</option><option>1,5 – 2 L</option><option>Mais de 2 L</option><option>Não sei</option></select>
+          </div>
+          <div class="field"><label>Consome café?</label>
+            <div class="choices">
+              <div class="choice-chip"><input type="radio" name="cafe" id="cfn" value="nao" onchange="toggleCond('cafe-det',false)"><label for="cfn"><div class="dot"></div>Não</label></div>
+              <div class="choice-chip"><input type="radio" name="cafe" id="cfs" value="sim" onchange="toggleCond('cafe-det',true)"><label for="cfs"><div class="dot"></div>Sim</label></div>
+            </div>
+          </div>
+          <div class="cond" id="cafe-det">
+            <div class="form-grid">
+              <div class="field"><label>Quantidade por dia</label><input name="cafe_qtd" type="number" min="0" step=".5" placeholder="Ex.: 2"></div>
+              <div class="field"><label>Tipo</label><input name="cafe_tipo" placeholder="Expresso, filtro, instantâneo..."></div>
+              <div class="field"><label>Adiciona açúcar?</label><select name="cafe_acucar"><option value="">Selecione</option><option>Não</option><option>Sim</option></select></div>
+              <div class="field"><label>Adiciona leite?</label><select name="cafe_leite"><option value="">Selecione</option><option>Não</option><option>Sim</option></select></div>
+            </div>
+          </div>
+          <div class="field"><label>Consome refrigerantes?</label>
+            <div class="choices">
+              <div class="choice-chip"><input type="radio" name="refri" id="rfn" value="nao" onchange="toggleCond('refri-det',false)"><label for="rfn"><div class="dot"></div>Não</label></div>
+              <div class="choice-chip"><input type="radio" name="refri" id="rfs" value="sim" onchange="toggleCond('refri-det',true)"><label for="rfs"><div class="dot"></div>Sim</label></div>
+            </div>
+          </div>
+          <div class="cond" id="refri-det">
+            <div class="form-grid">
+              <div class="field"><label>Frequência</label><select name="refri_freq"><option value="">Selecione</option><option>1x/semana</option><option>2–3x/semana</option><option>Diariamente</option></select></div>
+              <div class="field"><label>Tipo</label><select name="refri_tipo"><option>Com açúcar</option><option>Zero/Light</option><option>Ambos</option></select></div>
+            </div>
+          </div>
+          <div class="field"><label>Consome bebidas alcoólicas?</label>
+            <div class="choices">
+              <div class="choice-chip"><input type="radio" name="alcool" id="aln2" value="nao" onchange="toggleCond('alcool-det',false)"><label for="aln2"><div class="dot"></div>Não</label></div>
+              <div class="choice-chip"><input type="radio" name="alcool" id="als2" value="sim" onchange="toggleCond('alcool-det',true)"><label for="als2"><div class="dot"></div>Sim</label></div>
+            </div>
+          </div>
+          <div class="cond" id="alcool-det">
+            <div class="form-grid">
+              <div class="field"><label>Frequência</label><select name="alcool_freq"><option value="">Selecione</option><option>Raramente</option><option>1x/semana</option><option>2–3x/semana</option><option>4+ vezes/semana</option></select></div>
+              <div class="field"><label>O que costuma consumir?</label><input name="alcool_tipo" placeholder="Vinho, cerveja, destilados..."></div>
+              <div class="field"><label>Quantidade aproximada</label><input name="alcool_qtd" placeholder="Ex.: 2 copos"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Comportamento alimentar -->
+    <div class="card" id="card-8">
+      <div class="card-head" onclick="toggleCard(8)">
+        <div class="card-head-left"><div class="card-num" id="num-8">8</div><div class="card-title">Comportamento alimentar</div></div>
+        <svg class="card-chevron open" id="chev-8" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="card-body" id="body-8">
+        <div class="form-grid">
+          <div class="field"><label>Come mesmo sem fome?</label><select name="sem_fome"><option value="">Selecione</option><option>Nunca</option><option>Raramente</option><option>Às vezes</option><option>Frequentemente</option></select></div>
+          <div class="field"><label>Come até ficar muito saciado/a?</label><select name="muito_cheio"><option value="">Selecione</option><option>Nunca</option><option>Raramente</option><option>Às vezes</option><option>Frequentemente</option></select></div>
+          <div class="field"><label>Petisca ao longo do dia?</label><select name="belisca"><option value="">Selecione</option><option>Não</option><option>Às vezes</option><option>Frequentemente</option></select></div>
+          <div class="field"><label>Come usando telemóvel / TV?</label><select name="tela"><option value="">Selecione</option><option>Nunca</option><option>Raramente</option><option>Às vezes</option><option>Frequentemente</option></select></div>
+          <div class="field full"><label>Percebe perda de controlo perante algum alimento?</label>
+            <div class="choices">
+              <div class="choice-chip"><input type="radio" name="perda_ctrl" id="pcn" value="nao" onchange="toggleCond('pc-det',false)"><label for="pcn"><div class="dot"></div>Não</label></div>
+              <div class="choice-chip"><input type="radio" name="perda_ctrl" id="pcs" value="sim" onchange="toggleCond('pc-det',true)"><label for="pcs"><div class="dot"></div>Sim</label></div>
+            </div>
+          </div>
+          <div class="cond" id="pc-det">
+            <div class="field"><label>Quais situações ou alimentos?</label><textarea name="perda_ctrl_texto" placeholder="Descreva, se desejar..."></textarea></div>
+          </div>
+          <div class="field full"><label>Como descreve a sua relação atual com a comida?</label><textarea name="relacao_comida" placeholder="Saudável, complicada, neutro..."></textarea></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. Saúde e histórico clínico -->
+    <div class="card" id="card-9">
+      <div class="card-head" onclick="toggleCard(9)">
+        <div class="card-head-left"><div class="card-num" id="num-9">9</div><div class="card-title">Saúde e histórico clínico</div></div>
+        <svg class="card-chevron open" id="chev-9" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="card-body" id="body-9">
+        <div class="form-grid">
+          <div class="field full"><label>Possui alguma condição de saúde diagnosticada?</label>
+            <div class="choices">
+              <div class="choice-chip"><input type="radio" name="condicao" id="cdn" value="nao" onchange="toggleCond('cond-det',false)"><label for="cdn"><div class="dot"></div>Não</label></div>
+              <div class="choice-chip"><input type="radio" name="condicao" id="cds" value="sim" onchange="toggleCond('cond-det',true)"><label for="cds"><div class="dot"></div>Sim</label></div>
+            </div>
+          </div>
+          <div class="cond" id="cond-det">
+            <div class="field"><label>Qual(is) condições?</label><textarea name="condicoes" placeholder="Ex.: hipertensão, diabetes, colesterol elevado..."></textarea></div>
+          </div>
+          <div class="field full"><label>Usa medicamentos continuamente?</label>
+            <div class="choices">
+              <div class="choice-chip"><input type="radio" name="meds" id="mdn" value="nao" onchange="toggleCond('med-det',false)"><label for="mdn"><div class="dot"></div>Não</label></div>
+              <div class="choice-chip"><input type="radio" name="meds" id="mds" value="sim" onchange="toggleCond('med-det',true)"><label for="mds"><div class="dot"></div>Sim</label></div>
+            </div>
+          </div>
+          <div class="cond" id="med-det">
+            <div class="field"><label>Medicamentos, dose e frequência</label><textarea name="lista_meds" placeholder="Nome / dose / frequência"></textarea></div>
+          </div>
+          <div class="field full"><label>Usa suplementos?</label>
+            <div class="choices">
+              <div class="choice-chip"><input type="radio" name="supls" id="sln" value="nao" onchange="toggleCond('supl-det',false)"><label for="sln"><div class="dot"></div>Não</label></div>
+              <div class="choice-chip"><input type="radio" name="supls" id="sls" value="sim" onchange="toggleCond('supl-det',true)"><label for="sls"><div class="dot"></div>Sim</label></div>
+            </div>
+          </div>
+          <div class="cond" id="supl-det">
+            <div class="field"><label>Suplementos, dose e frequência</label><textarea name="lista_supls" placeholder="Ex.: Vitamina D – 1000 UI – 1x/dia"></textarea></div>
+          </div>
+          <div class="field full"><label>Realizou exames laboratoriais recentemente?</label>
+            <div class="choices">
+              <div class="choice-chip"><input type="radio" name="exames" id="exn" value="nao" onchange="toggleCond('ex-det',false)"><label for="exn"><div class="dot"></div>Não</label></div>
+              <div class="choice-chip"><input type="radio" name="exames" id="exs" value="sim" onchange="toggleCond('ex-det',true)"><label for="exs"><div class="dot"></div>Sim</label></div>
+            </div>
+          </div>
+          <div class="cond" id="ex-det">
+            <div class="field"><label>Quais exames / quando?</label><textarea name="exames_info" placeholder="Hemograma, colesterol, glicemia..."></textarea></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. Saúde gastrointestinal -->
+    <div class="card" id="card-10">
+      <div class="card-head" onclick="toggleCard(10)">
+        <div class="card-head-left"><div class="card-num" id="num-10">10</div><div class="card-title">Saúde digestiva</div></div>
+        <svg class="card-chevron open" id="chev-10" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="card-body" id="body-10">
+        <div class="form-grid">
+          <div class="field"><label>Funcionamento intestinal</label>
+            <select name="intestino"><option value="">Selecione</option><option>Regular</option><option>Obstipação / prisão de ventre</option><option>Diarreia frequente</option><option>Alternância</option><option>Outro</option></select>
+          </div>
+          <div class="field"><label>Frequência de evacuação</label><input name="evacuacao" placeholder="Ex.: 1x/dia"></div>
+          <div class="field full"><label>Apresenta algum destes sintomas digestivos?</label>
+            <div class="choices">
+              <div class="choice-chip"><input type="checkbox" name="sint" id="st1" value="distensao"><label for="st1"><div class="dot"></div>Distensão abdominal</label></div>
+              <div class="choice-chip"><input type="checkbox" name="sint" id="st2" value="gases"><label for="st2"><div class="dot"></div>Gases</label></div>
+              <div class="choice-chip"><input type="checkbox" name="sint" id="st3" value="azia"><label for="st3"><div class="dot"></div>Azia</label></div>
+              <div class="choice-chip"><input type="checkbox" name="sint" id="st4" value="refluxo"><label for="st4"><div class="dot"></div>Refluxo</label></div>
+              <div class="choice-chip"><input type="checkbox" name="sint" id="st5" value="nauseas"><label for="st5"><div class="dot"></div>Náuseas</label></div>
+              <div class="choice-chip"><input type="checkbox" name="sint" id="st6" value="dor"><label for="st6"><div class="dot"></div>Dor abdominal</label></div>
+              <div class="choice-chip"><input type="checkbox" name="sint" id="st7" value="nenhum"><label for="st7"><div class="dot"></div>Nenhum</label></div>
+            </div>
+          </div>
+          <div class="field full"><label>Algum alimento piora os seus sintomas digestivos?</label><input name="alim_sintoma" placeholder="Opcional"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11. Diário alimentar -->
+    <div class="card" id="card-11">
+      <div class="card-head" onclick="toggleCard(11)">
+        <div class="card-head-left"><div class="card-num" id="num-11">11</div><div class="card-title">Diário alimentar — um dia típico</div></div>
+        <svg class="card-chevron open" id="chev-11" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="card-body" id="body-11">
+        <p class="hint" style="margin-bottom:14px">Não precisa ser perfeito. Registe um dia típico para que a nutricionista entenda a sua rotina real.</p>
+        <div class="form-grid">
+          <div class="field"><label>Pequeno-almoço</label><textarea name="d_cafe" placeholder="Horário + alimentos + bebidas"></textarea></div>
+          <div class="field"><label>Lanche da manhã</label><textarea name="d_lanche_m" placeholder="Se aplicável"></textarea></div>
+          <div class="field"><label>Almoço</label><textarea name="d_almoco"></textarea></div>
+          <div class="field"><label>Lanche da tarde</label><textarea name="d_lanche_t"></textarea></div>
+          <div class="field"><label>Jantar</label><textarea name="d_jantar"></textarea></div>
+          <div class="field"><label>Ceia</label><textarea name="d_ceia" placeholder="Se aplicável"></textarea></div>
+          <div class="field full"><label>Outros alimentos ou bebidas ao longo do dia</label><textarea name="d_outros"></textarea></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12. Observações finais -->
+    <div class="card" id="card-12">
+      <div class="card-head" onclick="toggleCard(12)">
+        <div class="card-head-left"><div class="card-num" id="num-12">12</div><div class="card-title">Expectativas e observações finais</div></div>
+        <svg class="card-chevron open" id="chev-12" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="card-body" id="body-12">
+        <div class="form-grid">
+          <div class="field full"><label>O que espera receber do acompanhamento?</label>
+            <div class="choices">
+              <div class="choice-chip"><input type="checkbox" name="exp" id="e1" value="plano"><label for="e1"><div class="dot"></div>Plano alimentar</label></div>
+              <div class="choice-chip"><input type="checkbox" name="exp" id="e2" value="orientacoes"><label for="e2"><div class="dot"></div>Orientações</label></div>
+              <div class="choice-chip"><input type="checkbox" name="exp" id="e3" value="receitas"><label for="e3"><div class="dot"></div>Receitas</label></div>
+              <div class="choice-chip"><input type="checkbox" name="exp" id="e4" value="lista_compras"><label for="e4"><div class="dot"></div>Lista de compras</label></div>
+              <div class="choice-chip"><input type="checkbox" name="exp" id="e5" value="educacao"><label for="e5"><div class="dot"></div>Educação nutricional</label></div>
+              <div class="choice-chip"><input type="checkbox" name="exp" id="e6" value="evolucao"><label for="e6"><div class="dot"></div>Acompanhamento de evolução</label></div>
+            </div>
+          </div>
+          <div class="field full"><label>Existe alguma dificuldade específica que a nutricionista deve considerar?</label><textarea name="dificuldades" placeholder="Opcional"></textarea></div>
+          <div class="field full"><label>Alguma informação importante que não foi perguntada?</label><textarea name="outras_info" placeholder="Opcional"></textarea></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13. Consentimento -->
+    <div class="card" id="card-13">
+      <div class="card-head" onclick="toggleCard(13)">
+        <div class="card-head-left"><div class="card-num" id="num-13">13</div><div class="card-title">Consentimento</div></div>
+        <svg class="card-chevron open" id="chev-13" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="card-body" id="body-13">
+        <div class="consent-wrap">
+          <input type="checkbox" id="consent" name="consentimento">
+          <p>Confirmo que as informações fornecidas são verdadeiras e autorizo o seu tratamento para fins de acompanhamento nutricional, de acordo com as informações e termos apresentados pela profissional de saúde responsável.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /form-col -->
+
+  <!-- SIDE SUMMARY -->
+  <aside class="sticky-side">
+    <div class="side-card">
+      <div class="side-title">Resumo do preenchimento</div>
+      <div class="sum-row"><span>Dados pessoais</span><strong id="s1">Pendente</strong></div>
+      <div class="sum-row"><span>Objetivos</span><strong id="s2">Pendente</strong></div>
+      <div class="sum-row"><span>Medidas</span><strong id="s3">Pendente</strong></div>
+      <div class="sum-row"><span>Atividade física</span><strong id="s4">Pendente</strong></div>
+      <div class="sum-row"><span>Hábitos alimentares</span><strong id="s5">Pendente</strong></div>
+      <div class="sum-row"><span>Preferências</span><strong id="s6">Pendente</strong></div>
+      <div class="sum-row"><span>Saúde</span><strong id="s7">Pendente</strong></div>
+      <div class="sum-row"><span>Diário alimentar</span><strong id="s8">Pendente</strong></div>
+    </div>
+    <div class="side-card">
+      <div class="info-box">Os campos condicionais aparecem automaticamente conforme as suas respostas. Pode guardar um rascunho e retomar mais tarde.</div>
+    </div>
+  </aside>
+
+</div><!-- /page -->
+</div><!-- /mainForm -->
+
+<!-- SUCCESS SCREEN -->
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <h2>Anamnese enviada!</h2>
+  <p>Obrigada por preencher o formulário. A nutricionista irá analisar as suas respostas antes da consulta.<br><br>Pode fechar esta página.</p>
+</div>
+
+<!-- FOOTER -->
+<div class="footer" id="footer">
+  <div class="save-status" id="saveStatus">Alterações não guardadas</div>
+  <button class="btn" onclick="saveDraft()">Guardar rascunho</button>
+  <button class="btn btn-primary" onclick="submitForm()">Enviar anamnese</button>
+</div>
+
+<script>
+  // ─── ACCORDION ───
+  function toggleCard(n) {
+    const body = document.getElementById('body-' + n);
+    const chev = document.getElementById('chev-' + n);
+    const isOpen = !body.classList.contains('collapsed');
+    body.classList.toggle('collapsed', isOpen);
+    chev.classList.toggle('open', !isOpen);
+  }
+
+  // ─── CONDITIONALS ───
+  function toggleCond(id, show) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('show', show);
+    if (!show) {
+      el.querySelectorAll('input,select,textarea').forEach(f => {
+        if (f.type === 'radio' || f.type === 'checkbox') f.checked = false;
+        else f.value = '';
+      });
+    }
+  }
+
+  // ─── MOTIVATION RANGE ───
+  document.getElementById('mot-range').addEventListener('input', function() {
+    document.getElementById('mot-val').textContent = this.value + '/10';
+  });
+
+  // ─── PROGRESS ───
+  function visibleFields() {
+    return [...document.querySelectorAll('#mainForm input,#mainForm select,#mainForm textarea')].filter(el => {
+      if (el.type === 'hidden' || el.type === 'range' || el.type === 'checkbox' || el.type === 'radio') return false;
+      const cond = el.closest('.cond');
+      return !cond || cond.classList.contains('show');
+    });
+  }
+
+  function isFilled(el) {
+    return String(el.value || '').trim() !== '';
+  }
+
+  function cardFilled(cardN, minFields) {
+    const card = document.getElementById('card-' + cardN);
+    if (!card) return false;
+    const fields = [...card.querySelectorAll('input,select,textarea')].filter(el => {
+      if (el.type === 'hidden' || el.type === 'range' || el.type === 'checkbox' || el.type === 'radio') return false;
+      const cond = el.closest('.cond');
+      return !cond || cond.classList.contains('show');
+    });
+    return fields.filter(isFilled).length >= minFields;
+  }
+
+  function updateProgress() {
+    const fields = visibleFields();
+    const filled = fields.filter(isFilled).length;
+    const pct = fields.length ? Math.round(filled / fields.length * 100) : 0;
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = pct + '% preenchido';
+
+    const sections = [
+      ['s1',1,2],['s2',2,1],['s3',3,1],['s4',4,1],['s5',5,1],
+      ['s6',6,1],['s7',9,1],['s8',11,1]
+    ];
+    sections.forEach(([sid, cardN, min]) => {
+      const done = cardFilled(cardN, min);
+      const el = document.getElementById(sid);
+      el.textContent = done ? 'Concluído' : 'Pendente';
+      el.className = done ? 'done' : '';
+    });
+
+    // update card number badges
+    for (let i = 1; i <= 13; i++) {
+      const num = document.getElementById('num-' + i);
+      if (num) {
+        const card = document.getElementById('card-' + i);
+        if (!card) continue;
+        const fields2 = [...card.querySelectorAll('input,select,textarea')].filter(el2 => {
+          if (el2.type==='hidden'||el2.type==='range'||el2.type==='checkbox'||el2.type==='radio') return false;
+          const cond = el2.closest('.cond'); return !cond || cond.classList.contains('show');
+        });
+        const ok = fields2.length && fields2.filter(isFilled).length >= Math.min(1, fields2.length);
+        num.classList.toggle('done', ok);
+        if (ok) {
+          num.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>';
+        } else {
+          num.textContent = i;
+        }
+      }
+    }
+  }
+
+  document.querySelectorAll('#mainForm input,#mainForm select,#mainForm textarea').forEach(el => {
+    el.addEventListener('change', () => { markUnsaved(); updateProgress(); });
+    el.addEventListener('input',  () => { markUnsaved(); updateProgress(); });
+  });
+
+  function markUnsaved() {
+    document.getElementById('saveStatus').textContent = 'Alterações não guardadas';
+  }
+
+  // ─── DRAFT ───
+  function collectForm() {
+    const data = {};
+    document.querySelectorAll('#mainForm input,#mainForm select,#mainForm textarea').forEach(el => {
+      if (!el.name) return;
+      if (el.type === 'radio') { if (el.checked) data[el.name] = el.value; }
+      else if (el.type === 'checkbox') {
+        if (!data[el.name]) data[el.name] = [];
+        if (el.checked) data[el.name].push(el.value || true);
+      } else data[el.name] = el.value;
+    });
+    return data;
+  }
+
+  function saveDraft() {
+    try { localStorage.setItem('nc_anamnese', JSON.stringify(collectForm())); } catch(e) {}
+    document.getElementById('saveStatus').textContent = 'Rascunho guardado';
+  }
+
+  function loadDraft() {
+    try {
+      const raw = localStorage.getItem('nc_anamnese');
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      document.querySelectorAll('#mainForm input,#mainForm select,#mainForm textarea').forEach(el => {
+        if (!el.name || data[el.name] === undefined) return;
+        if (el.type === 'radio') el.checked = data[el.name] === el.value;
+        else if (el.type === 'checkbox') el.checked = Array.isArray(data[el.name]) && data[el.name].includes(el.value);
+        else el.value = data[el.name];
+      });
+      // sync range label
+      const r = document.getElementById('mot-range');
+      if (r) document.getElementById('mot-val').textContent = r.value + '/10';
+      // re-evaluate conditionals
+      document.querySelectorAll('[onchange]').forEach(el => { try{ el.dispatchEvent(new Event('change')); }catch(e){} });
+      document.getElementById('saveStatus').textContent = 'Rascunho recuperado';
+      updateProgress();
+    } catch(e) {}
+  }
+
+  // ─── SUPABASE ───
+  const SUPABASE_URL = 'https://zlhsbzwfpnxmxbyfevzc.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsaHNiendmcG54bXhieWZldnpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MzYwMDEsImV4cCI6MjEwNTMxMjAwMX0.LpkpwLSicUUXoQaiHl17zGqGx6plLimkUJwxnGv_DD4';
+
+  async function saveToSupabase(formData) {
+    const nascimento = formData.nascimento || null;
+    const payload = {
+      nome: formData.nome,
+      email: formData.email || null,
+      telefone: formData.telefone || null,
+      nascimento: nascimento || null,
+      sexo: formData.sexo || null,
+      dados: formData
+    };
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/anamneses`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err);
+    }
+    return res.json();
+  }
+
+  // ─── SUBMIT ───
+  async function submitForm() {
+    const consent = document.getElementById('consent');
+    if (!consent.checked) {
+      alert('Por favor, confirme o consentimento antes de enviar.');
+      document.getElementById('card-13').scrollIntoView({behavior:'smooth'});
+      return;
+    }
+    const nome = document.querySelector('[name="nome"]').value.trim();
+    if (!nome) {
+      alert('Por favor, indique o seu nome completo.');
+      document.querySelector('[name="nome"]').focus();
+      return;
+    }
+
+    const btn = document.querySelector('.btn-primary');
+    const origText = btn.textContent;
+    btn.textContent = 'A enviar…';
+    btn.disabled = true;
+
+    try {
+      const data = collectForm();
+      await saveToSupabase(data);
+      try { localStorage.removeItem('nc_anamnese'); } catch(e) {}
+      document.getElementById('mainForm').style.display = 'none';
+      document.getElementById('footer').style.display = 'none';
+      document.getElementById('successScreen').classList.add('show');
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    } catch(err) {
+      btn.textContent = origText;
+      btn.disabled = false;
+      alert('Erro ao enviar. Verifique a ligação e tente novamente.\n\n' + err.message);
+    }
+  }
+
+  // ─── INIT ───
+  loadDraft();
+  updateProgress();
+</script>
+</body>
+</html>
